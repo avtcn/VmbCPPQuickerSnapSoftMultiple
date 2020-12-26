@@ -165,11 +165,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\ApiController.cpp" />
+    <ClCompile Include="..\..\Source\Bitmap.cpp" />
     <ClCompile Include="..\..\Source\FrameObserver.cpp" />
     <ClCompile Include="..\..\Source\CameraHandle.cpp" />
     <ClCompile Include="..\..\Source\program.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Bitmap.h" />
     <ClInclude Include="C:\Program Files\Allied Vision\Vimba_4.0\VimbaImageTransform\Include\VmbTransform.h" />
     <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Common\ErrorCodeToMessage.h" />
     <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Common\StreamSystemInfo.h" />

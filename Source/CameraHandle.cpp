@@ -95,6 +95,17 @@ VmbErrorType CameraHandle::OpenCameraHandle(const char* pID)
             }
         }
 
+        FeaturePtr pWidthFeature;
+        if (VmbErrorSuccess == m_pCamera->GetFeatureByName("Width", pWidthFeature))
+        {
+            pWidthFeature->GetValue(m_imgWidth);
+        }
+        FeaturePtr pHeightFeature;
+        if (VmbErrorSuccess == m_pCamera->GetFeatureByName("Height", pHeightFeature))
+        {
+            pHeightFeature->GetValue(m_imgHeight);
+        }
+
         if ( VmbErrorSuccess == res )
         {
             // set camera so that transform algorithms will never fail
@@ -238,6 +249,31 @@ VmbErrorType CameraHandle::QuickSnap(std::vector<VmbUchar_t>& cDestinationImageD
     return VmbErrorSuccess;
 }
 
+VmbUint32_t  CameraHandle::GetImageSize()
+{
+    VmbUint32_t size = 0;
+
+    m_lock.Lock();
+
+    size = m_imageSize;
+
+    m_lock.Unlock();
+
+    return size;
+}
+
+VmbUint64_t  CameraHandle::GetFrameID()
+{
+    VmbUint64_t id = 0;
+
+    m_lock.Lock();
+
+    id = m_frameID;
+
+    m_lock.Unlock();
+
+    return id;
+}
 
 
 

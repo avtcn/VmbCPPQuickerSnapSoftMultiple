@@ -374,8 +374,15 @@ void FrameObserver::FrameReceived( const FramePtr pFrame )
                 pFrame->GetTimestamp(m_pParent->m_timestamp); 
                 Result = TransformImage(pFrame, m_pParent->m_DestinationImageData, "RGB24");
 
+
+
+                pFrame->GetImageSize(m_pParent->m_imageSize);
+                pFrame->GetFrameID(m_pParent->m_frameID);
+
                 std::cout << "image size = " << m_pParent->m_imageSize << ", timestamp = " << m_pParent->m_timestamp 
                     << ", DestinationImageData size = " << m_pParent->m_DestinationImageData.size()
+                    << ", frameid = " << m_pParent->m_frameID
+                    << ", image size = " << m_pParent->m_imageSize
                     << std::endl;
 
                 m_pParent->m_lock.Unlock();

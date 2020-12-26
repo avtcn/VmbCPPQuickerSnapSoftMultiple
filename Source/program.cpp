@@ -38,24 +38,8 @@
 
 #include "CameraHandle.h"
 
+#include "Bitmap.h"
 
-/*
-CHAR getch() {
-    DWORD mode, cc;
-    HANDLE h = GetStdHandle( STD_INPUT_HANDLE );
-
-    if (h == NULL) {
-        return 0; // console not found
-    }
-
-    GetConsoleMode( h, &mode );
-    SetConsoleMode( h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT) );
-    TCHAR c = 0;
-    ReadConsole( h, &c, 1, &cc, NULL );
-    SetConsoleMode( h, mode );
-    return c;
-}
-*/
 
 int main( int argc, char* argv[] )
 {
@@ -139,6 +123,8 @@ int main( int argc, char* argv[] )
             std::cout<<"\nAn error occurred: " << strError << "\n";
         }
 #else
+        system("del_bitmps.cmd");
+
         // Startup Vimba
         err = apiController.StartUp();        
 
@@ -174,13 +160,53 @@ int main( int argc, char* argv[] )
                     << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
                     << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec << "\n";
                 std::cout.fill(old_fill_char);
+
+                {
+
+                    AVTBitmap bitmap;
+
+                    bitmap.colorCode = ColorCodeRGB24; 
+                    bitmap.bufferSize = camera1.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+                    bitmap.width = camera1.m_imgWidth;
+                    bitmap.height = camera1.m_imgHeight;
+
+                    // Create the bitmap
+                    if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
+                    {
+                        std::cout << "Could not create bitmap.\n";
+                        err = VmbErrorResources;
+                    }
+                    else
+                    {
+                        char pFileName[256];
+                        sprintf(pFileName, "img%020d.bmp", camera1.GetFrameID());
+
+                        // Save the bitmap
+                        if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
+                        {
+                            std::cout << "Could not write bitmap to file.\n";
+                            err = VmbErrorOther;
+                        }
+                        else
+                        {
+                            std::cout << "Bitmap successfully written to file \"" << pFileName << "\"\n";
+                            // Release the bitmap's buffer
+                            if (0 == AVTReleaseBitmap(&bitmap))
+                            {
+                                std::cout << "Could not release the bitmap.\n";
+                                err = VmbErrorInternalFault;
+                            }
+                        }
+                    }
+
+                }
             }
             else {
             }
 
-            if (pressed == 'q'|| pressed == 'Q')
+            if (pressed == 'q' || pressed == 'Q')
                 break;
-        } 
+        }
         std::cout << std::endl;
 
 

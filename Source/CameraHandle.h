@@ -59,6 +59,8 @@ public:
     std::string GetSerialNumber();
 
     VmbErrorType QuickSnap(std::vector<VmbUchar_t> & cDestinationImageData, VmbImage & sVmbImageData);
+    VmbUint32_t  GetImageSize();
+    VmbUint64_t  GetFrameID();
 
 private:
 
@@ -75,7 +77,11 @@ public:
 
     //VmbUchar_t* m_imageBuffer; 
     VmbUint32_t  m_imageSize; 
+    VmbUint64_t  m_frameID; 
     VmbUint64_t  m_timestamp; 
+
+    VmbInt64_t m_imgWidth; 
+    VmbInt64_t m_imgHeight; 
 
     std::vector<VmbUchar_t>  m_DestinationImageData;
     VmbImage m_VmbImageData;
