@@ -170,7 +170,7 @@
     <ClCompile Include="..\..\Source\program.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\..\Externals\AVTImageTransform\UniTransform\interface\VmbTransform.h" />
+    <ClInclude Include="C:\Program Files\Allied Vision\Vimba_4.0\VimbaImageTransform\Include\VmbTransform.h" />
     <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Common\ErrorCodeToMessage.h" />
     <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Common\StreamSystemInfo.h" />
     <ClInclude Include="..\..\Source\ApiController.h" />

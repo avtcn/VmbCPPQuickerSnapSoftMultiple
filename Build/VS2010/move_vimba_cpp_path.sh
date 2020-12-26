@@ -12,6 +12,10 @@ echo $source_str
 
 # sed --debug -i  "s/'$source_str'/'$vimba_path'\Build\VS2010\/g" AsynchronousGrabMFC2.sln
 
+
+# TODO
+# C:\Program Files\Allied Vision\Vimba_4.0\VimbaImageTransform\Include\VmbTransform.h
+
 awk '{sub(/\.\.\\\.\.\\\.\.\\\.\./,"C:\\Users\\Public\\Documents\\Allied Vision\\Vimba_4.0\\VimbaCPP_Examples")}1' AsynchronousGrabConsole.vcxproj > temp1.vcxproj
 # awk '{sub(/\.\.\\\.\.\\\.\.\\\.\./, '$vimba_path2')}1' AsynchronousGrabMFC3.vcxproj > temp1.vcxproj
 cat temp1.vcxproj
