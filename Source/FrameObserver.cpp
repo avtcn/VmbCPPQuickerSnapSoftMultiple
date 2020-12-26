@@ -388,6 +388,9 @@ void FrameObserver::FrameReceived( const FramePtr pFrame )
                 m_pParent->m_lock.Unlock();
 
             }
+
+            // TEST: call parent's method
+            std::cout << "Received new frame from camera SN: " << m_pParent->GetSerialNumber() << std::endl;
         }
         else
         {
@@ -399,8 +402,6 @@ void FrameObserver::FrameReceived( const FramePtr pFrame )
         std::cout <<" frame pointer NULL\n";
     }
 
-    // TEST: call parent's method
-    std::cout << "Received new frame from camera SN: " << m_pParent->GetSerialNumber() << std::endl;
 
     m_pCamera->QueueFrame( pFrame );
 }

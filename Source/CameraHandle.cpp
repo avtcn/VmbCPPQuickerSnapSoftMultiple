@@ -242,9 +242,15 @@ VmbErrorType CameraHandle::QuickSnap(std::vector<VmbUchar_t>& cDestinationImageD
 {
     m_lock.Lock();
 
-    cDestinationImageData.swap(m_DestinationImageData);
+    //cDestinationImageData.swap(m_DestinationImageData);
+    cDestinationImageData = m_DestinationImageData;
 
     m_lock.Unlock();
+
+    if (cDestinationImageData.size() <= 0)
+    {
+        return VmbErrorIncomplete;
+    }
 
     return VmbErrorSuccess;
 }

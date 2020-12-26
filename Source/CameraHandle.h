@@ -39,7 +39,7 @@
 #include "VmbTransform.h"
 #include "FrameObserver.h"
 
-#define NUM_FRAMES 3
+#define NUM_FRAMES 10
 
 namespace AVT {
 namespace VmbAPI {

@@ -32,6 +32,9 @@
 #include <iomanip>
 #include <conio.h>
 
+#define _AFXDLL
+
+#include <afxwin.h>
 
 #include "VimbaCPP/Include/VimbaCPP.h"
 #include "ApiController.h"
@@ -40,6 +43,53 @@
 
 #include "Bitmap.h"
 
+using AVT::VmbAPI::Examples::CameraHandle;
+
+
+UINT CameraProc( LPVOID pParam )
+{
+    CameraHandle* pCamera = (CameraHandle*)pParam;
+
+    if (pCamera == NULL)
+        return 1;   // if pCamera is not valid
+
+    // do something with this camera
+
+    
+    for (int i = 0; i < 10; i++) {
+        Sleep(300);
+        std::string strID = pCamera->GetCameraID();
+        std::string strSN = pCamera->GetSerialNumber();
+        std::cout << "In Thread of Camera: " << strID << ", " << strSN << std::endl;
+    }
+    
+
+
+
+    return 0;   // thread completed successfully
+}
+
+
+int StartNewCameraThread(AVT::VmbAPI::Examples::ApiController & sysController, CameraHandle & camera, const char * strCameraID)
+{
+
+    VmbErrorType err = VmbErrorSuccess;
+    err = sysController.OpenCamera(strCameraID, camera);
+    if (VmbErrorSuccess != err)
+    {
+        std::cout << "\nFailed to open camera !!!"<< strCameraID <<"\n";
+        return 0;
+    }
+    else
+    {
+        std::cout << "\nSucessfully opened camera done !" << strCameraID << "\n";
+    }
+
+    AfxBeginThread(CameraProc, (LPVOID)&camera);
+
+
+    return 1; 
+}
 
 int main( int argc, char* argv[] )
 {
@@ -128,8 +178,12 @@ int main( int argc, char* argv[] )
         // Startup Vimba
         err = apiController.StartUp();        
 
+
+        AVT::VmbAPI::Examples::CameraHandle camera2;
+        StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8");
+
+
         AVT::VmbAPI::Examples::CameraHandle camera1;
-        //err = apiController.OpenCamera("DEV_000F314CA646", camera1);
         err = apiController.OpenCamera("DEV_1AB22C0019F9", camera1);
         if ( VmbErrorSuccess != err )
         {
@@ -153,52 +207,59 @@ int main( int argc, char* argv[] )
                 std::cout << strID << ", " << strSN << std::endl;
 
                 std::vector<VmbUchar_t> imageData;
-                apiController.QuickSnap(camera1, imageData);
-
-                char old_fill_char = std::cout.fill('0');
-                std::cout << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
-                    << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
-                    << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec << "\n";
-                std::cout.fill(old_fill_char);
-
+                err = apiController.QuickSnap(camera1, imageData);
+                if (err != VmbErrorSuccess)
+                {
+                    std::cout << "Failed to get QuickSnap()!!!!!!!!!!!!!!!" << std::endl; 
+                } 
+                else
                 {
 
-                    AVTBitmap bitmap;
+                    char old_fill_char = std::cout.fill('0');
+                    std::cout << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
+                        << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
+                        << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec << "\n";
+                    std::cout.fill(old_fill_char);
 
-                    bitmap.colorCode = ColorCodeRGB24; 
-                    bitmap.bufferSize = camera1.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
-                    bitmap.width = camera1.m_imgWidth;
-                    bitmap.height = camera1.m_imgHeight;
-
-                    // Create the bitmap
-                    if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
+                    // Save current snap photo to disk
                     {
-                        std::cout << "Could not create bitmap.\n";
-                        err = VmbErrorResources;
-                    }
-                    else
-                    {
-                        char pFileName[256];
-                        sprintf(pFileName, "img%020d.bmp", camera1.GetFrameID());
+                        AVTBitmap bitmap;
 
-                        // Save the bitmap
-                        if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
+                        bitmap.colorCode = ColorCodeRGB24;
+                        bitmap.bufferSize = camera1.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+                        bitmap.width = camera1.m_imgWidth;
+                        bitmap.height = camera1.m_imgHeight;
+
+                        // Create the bitmap
+                        if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
                         {
-                            std::cout << "Could not write bitmap to file.\n";
-                            err = VmbErrorOther;
+                            std::cout << "Could not create bitmap.\n";
+                            err = VmbErrorResources;
                         }
                         else
                         {
-                            std::cout << "Bitmap successfully written to file \"" << pFileName << "\"\n";
-                            // Release the bitmap's buffer
-                            if (0 == AVTReleaseBitmap(&bitmap))
+                            char pFileName[256];
+                            sprintf(pFileName, "%s_%020d_main_thread.bmp", strSN.c_str(), camera1.GetFrameID());
+
+                            // Save the bitmap
+                            if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
                             {
-                                std::cout << "Could not release the bitmap.\n";
-                                err = VmbErrorInternalFault;
+                                std::cout << "Could not write bitmap to file.\n";
+                                err = VmbErrorOther;
+                            }
+                            else
+                            {
+                                std::cout << "Bitmap successfully written to file \"" << pFileName << "\"\n";
+                                // Release the bitmap's buffer
+                                if (0 == AVTReleaseBitmap(&bitmap))
+                                {
+                                    std::cout << "Could not release the bitmap.\n";
+                                    err = VmbErrorInternalFault;
+                                }
                             }
                         }
-                    }
 
+                    }
                 }
             }
             else {
