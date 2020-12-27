@@ -1,4 +1,4 @@
-/*=============================================================================
+﻿/*=============================================================================
   Copyright (C) 2013 - 2017 Allied Vision Technologies.  All Rights Reserved.
 
   Redistribution of this file, in original or modified form, without
@@ -53,6 +53,10 @@ UINT CameraProc(LPVOID pParam)
     if (pCamera == NULL)
         return 1;   // if pCamera is not valid
 
+    LARGE_INTEGER m_liPerfFreq = { 0 };
+    // CPU Performance Tick
+    QueryPerformanceFrequency(&m_liPerfFreq);
+
     // do something with this camera
     while (1)
     {
@@ -64,6 +68,11 @@ UINT CameraProc(LPVOID pParam)
         VmbErrorType err;
         std::vector<VmbUchar_t> imageData;
         VmbImage sVmbImageData;
+        DWORD dwStart = GetTickCount();
+
+        LARGE_INTEGER m_liPerfStart = { 0 };
+        QueryPerformanceCounter(&m_liPerfStart);
+
         err = pCamera->QuickSnap(imageData, sVmbImageData);
         if (err != VmbErrorSuccess)
         {
@@ -71,10 +80,16 @@ UINT CameraProc(LPVOID pParam)
         }
         else
         {
+            DWORD dwEnd = GetTickCount();
+            LARGE_INTEGER liPerfNow = { 0 };
+            QueryPerformanceCounter(&liPerfNow);
+            double time = (((liPerfNow.QuadPart - m_liPerfStart.QuadPart) * 1000) * 1.00000f / m_liPerfFreq.QuadPart);
+
             char old_fill_char = std::cout.fill('0');
             std::cout << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
                 << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
-                << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec << "\n";
+                << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec 
+                << ", time = " << std::setw(8) << (time) << " ms" << "\n";
             std::cout.fill(old_fill_char);
 
             // Save current snap photo to disk
@@ -95,7 +110,7 @@ UINT CameraProc(LPVOID pParam)
                 else
                 {
                     char pFileName[256];
-                    sprintf(pFileName, "%s_%020d_CameraProc.bmp", strSN.c_str(), pCamera->GetFrameID());
+                    sprintf(pFileName, "%s_%010d_CameraProc.bmp", strSN.c_str(), pCamera->GetFrameID());
 
                     // Save the bitmap
                     if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
@@ -235,8 +250,17 @@ int main( int argc, char* argv[] )
         AVT::VmbAPI::Examples::CameraHandle camera2;
         StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8");
 
+#if 0
+        // TODO: add two more cameras.
+        AVT::VmbAPI::Examples::CameraHandle camera3;
+        AVT::VmbAPI::Examples::CameraHandle camera4;
+#endif
+
 
         AVT::VmbAPI::Examples::CameraHandle camera1;
+#if 1
+        StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9");
+#else
         err = apiController.OpenCamera("DEV_1AB22C0019F9", camera1);
         if ( VmbErrorSuccess != err )
         {
@@ -321,13 +345,12 @@ int main( int argc, char* argv[] )
             if (pressed == 'q' || pressed == 'Q')
                 break;
         }
-        std::cout << std::endl;
-
-
-
-
+        std::cout << std::endl; 
         apiController.CloseCamera(camera1);
+#endif
 
+        std::cout << "\n\nPress Enter to quit the application ...\n";
+        _getch();
         apiController.ShutDown();
 #endif
 
