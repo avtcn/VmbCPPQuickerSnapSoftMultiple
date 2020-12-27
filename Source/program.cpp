@@ -46,7 +46,7 @@
 using AVT::VmbAPI::Examples::CameraHandle;
 
 
-UINT CameraProc( LPVOID pParam )
+UINT CameraProc(LPVOID pParam)
 {
     CameraHandle* pCamera = (CameraHandle*)pParam;
 
@@ -54,17 +54,70 @@ UINT CameraProc( LPVOID pParam )
         return 1;   // if pCamera is not valid
 
     // do something with this camera
-
-    
-    for (int i = 0; i < 10; i++) {
-        Sleep(300);
+    while (1)
+    {
+        Sleep(2000);
         std::string strID = pCamera->GetCameraID();
         std::string strSN = pCamera->GetSerialNumber();
-        std::cout << "In Thread of Camera: " << strID << ", " << strSN << std::endl;
+        std::cout << strID << ", " << strSN << std::endl;
+
+        VmbErrorType err;
+        std::vector<VmbUchar_t> imageData;
+        VmbImage sVmbImageData;
+        err = pCamera->QuickSnap(imageData, sVmbImageData);
+        if (err != VmbErrorSuccess)
+        {
+            std::cout << "Failed to get QuickSnap()!!!!!!!!!!!!!!! SN: " << strSN << std::endl;
+        }
+        else
+        {
+            char old_fill_char = std::cout.fill('0');
+            std::cout << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
+                << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
+                << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec << "\n";
+            std::cout.fill(old_fill_char);
+
+            // Save current snap photo to disk
+            {
+                AVTBitmap bitmap;
+
+                bitmap.colorCode = ColorCodeRGB24;
+                bitmap.bufferSize = pCamera->GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+                bitmap.width = pCamera->m_imgWidth;
+                bitmap.height = pCamera->m_imgHeight;
+
+                // Create the bitmap
+                if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
+                {
+                    std::cout << "Could not create bitmap.\n";
+                    err = VmbErrorResources;
+                }
+                else
+                {
+                    char pFileName[256];
+                    sprintf(pFileName, "%s_%020d_CameraProc.bmp", strSN.c_str(), pCamera->GetFrameID());
+
+                    // Save the bitmap
+                    if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
+                    {
+                        std::cout << "Could not write bitmap to file.\n";
+                        err = VmbErrorOther;
+                    }
+                    else
+                    {
+                        std::cout << "Bitmap successfully written to file \"" << pFileName << "\"\n";
+                        // Release the bitmap's buffer
+                        if (0 == AVTReleaseBitmap(&bitmap))
+                        {
+                            std::cout << "Could not release the bitmap.\n";
+                            err = VmbErrorInternalFault;
+                        }
+                    }
+                }
+
+            }
+        }
     }
-    
-
-
 
     return 0;   // thread completed successfully
 }
