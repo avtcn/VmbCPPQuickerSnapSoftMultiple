@@ -113,7 +113,10 @@ UINT CameraProc(LPVOID pParam)
                     sprintf(pFileName, "%s_%010d_CameraProc.bmp", strSN.c_str(), pCamera->GetFrameID());
 
                     // Save the bitmap
-                    if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
+                    int ret = 1;
+                    // If you do not want to save image into disk, please comment the line below.
+                    ret = AVTWriteBitmapToFile(&bitmap, pFileName);
+                    if (0 == ret)
                     {
                         std::cout << "Could not write bitmap to file.\n";
                         err = VmbErrorOther;
@@ -248,18 +251,21 @@ int main( int argc, char* argv[] )
 
 
         AVT::VmbAPI::Examples::CameraHandle camera2;
-        StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8");
+        StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8"); // Model: 1800 U-500m, S/N: A2114
 
-#if 0
+#if 1
         // TODO: add two more cameras.
         AVT::VmbAPI::Examples::CameraHandle camera3;
+        StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002)
+
         AVT::VmbAPI::Examples::CameraHandle camera4;
+        StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
 #endif
 
 
         AVT::VmbAPI::Examples::CameraHandle camera1;
 #if 1
-        StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9");
+        StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
 #else
         err = apiController.OpenCamera("DEV_1AB22C0019F9", camera1);
         if ( VmbErrorSuccess != err )
