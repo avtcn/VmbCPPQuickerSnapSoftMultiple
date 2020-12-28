@@ -57,13 +57,21 @@ UINT CameraProc(LPVOID pParam)
     // CPU Performance Tick
     QueryPerformanceFrequency(&m_liPerfFreq);
 
+    std::string strModel = pCamera->GetCameraModel();
+    strModel = strModel.replace(strModel.find(" "), 1, "_");
+
+    std::string strID = pCamera->GetCameraID();
+    std::string strSN = pCamera->GetSerialNumber();
+    std::string strTag = strModel + "_" + strID + "_" + strSN + ": ";
+    std::string strFile = "log_" + strModel + "_" + strID + "_" + strSN + ".csv";
+
+    std::ofstream fileLog;
+    fileLog.open(strFile);
+
     // do something with this camera
     while (1)
     {
         Sleep(2000);
-        std::string strID = pCamera->GetCameraID();
-        std::string strSN = pCamera->GetSerialNumber();
-        std::cout << strID << ", " << strSN << std::endl;
 
         VmbErrorType err;
         std::vector<VmbUchar_t> imageData;
@@ -76,7 +84,7 @@ UINT CameraProc(LPVOID pParam)
         err = pCamera->QuickSnap(imageData, sVmbImageData);
         if (err != VmbErrorSuccess)
         {
-            std::cout << "Failed to get QuickSnap()!!!!!!!!!!!!!!! SN: " << strSN << std::endl;
+            std::cout << strTag << "Failed to get QuickSnap()!!!!!!!!!!!!!!! SN: " << strSN << std::endl;
         }
         else
         {
@@ -86,11 +94,12 @@ UINT CameraProc(LPVOID pParam)
             double time = (((liPerfNow.QuadPart - m_liPerfStart.QuadPart) * 1000) * 1.00000f / m_liPerfFreq.QuadPart);
 
             char old_fill_char = std::cout.fill('0');
-            std::cout << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
+            std::cout << strTag << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
                 << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
-                << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec 
-                << ", time = " << std::setw(8) << (time) << " ms" << "\n";
+                << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec
+                << std::endl;
             std::cout.fill(old_fill_char);
+            std::cout << strTag << "time consumption: " << (time) << " ms" << std::endl;
 
             // Save current snap photo to disk
             {
@@ -104,7 +113,7 @@ UINT CameraProc(LPVOID pParam)
                 // Create the bitmap
                 if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
                 {
-                    std::cout << "Could not create bitmap.\n";
+                    std::cout << strTag << "Could not create bitmap.\n";
                     err = VmbErrorResources;
                 }
                 else
@@ -112,22 +121,26 @@ UINT CameraProc(LPVOID pParam)
                     char pFileName[256];
                     sprintf(pFileName, "%s_%010d_CameraProc.bmp", strSN.c_str(), pCamera->GetFrameID());
 
+                    // Save log with frame id and time consumption in Snap() function
+                    fileLog << std::setw(10) << pCamera->GetFrameID() << ", " << std::setw(10) << std::fixed << std::setprecision(6) << time << std::endl;
+                    fileLog.flush();
+
                     // Save the bitmap
                     int ret = 1;
                     // If you do not want to save image into disk, please comment the line below.
-                    ret = AVTWriteBitmapToFile(&bitmap, pFileName);
+                    //ret = AVTWriteBitmapToFile(&bitmap, pFileName);
                     if (0 == ret)
                     {
-                        std::cout << "Could not write bitmap to file.\n";
+                        std::cout << strTag << "Could not write bitmap to file.\n";
                         err = VmbErrorOther;
                     }
                     else
                     {
-                        std::cout << "Bitmap successfully written to file \"" << pFileName << "\"\n";
+                        std::cout << strTag << "Bitmap successfully written to file \"" << pFileName << "\"\n";
                         // Release the bitmap's buffer
                         if (0 == AVTReleaseBitmap(&bitmap))
                         {
-                            std::cout << "Could not release the bitmap.\n";
+                            std::cout << strTag << "Could not release the bitmap.\n";
                             err = VmbErrorInternalFault;
                         }
                     }

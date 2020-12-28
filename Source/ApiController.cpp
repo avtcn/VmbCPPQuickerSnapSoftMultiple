@@ -248,7 +248,7 @@ VmbErrorType        ApiController::OpenCamera(const char* strCameraID, CameraHan
 {
     // Open the desired camera by its ID
     VmbErrorType result;
-    result = hCamera.OpenCameraHandle(strCameraID);
+    result = hCamera.OpenCameraHandle(strCameraID, FrameInfos_Off);
 
     return result;
 }

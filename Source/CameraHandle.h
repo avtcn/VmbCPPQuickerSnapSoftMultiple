@@ -52,11 +52,13 @@ public:
     CameraHandle();
     ~CameraHandle();
 
-    VmbErrorType OpenCameraHandle(const char* pID);
+
+    VmbErrorType OpenCameraHandle(const char* pID, FrameInfos showFrameInfo = FrameInfos_Off);
     VmbErrorType CloseCameraHandle();
 
     std::string GetCameraID();
-    std::string GetSerialNumber();
+    std::string GetSerialNumber(); 
+    std::string GetCameraModel();
 
     VmbErrorType QuickSnap(std::vector<VmbUchar_t> & cDestinationImageData, VmbImage & sVmbImageData);
     VmbUint32_t  GetImageSize();

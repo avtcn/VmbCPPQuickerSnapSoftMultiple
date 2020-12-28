@@ -71,7 +71,7 @@ CameraHandle::~CameraHandle()
 
 }
 
-VmbErrorType CameraHandle::OpenCameraHandle(const char* pID)
+VmbErrorType CameraHandle::OpenCameraHandle(const char* pID, FrameInfos showFrameInfo)
 {
     // Open the desired camera by its ID
     VmbErrorType res = VimbaSystem::GetInstance().OpenCameraByID( pID, VmbAccessModeFull, m_pCamera );
@@ -114,7 +114,7 @@ VmbErrorType CameraHandle::OpenCameraHandle(const char* pID)
             if ( VmbErrorSuccess == res )
             {
                 AVT::VmbAPI::Examples::ProgramConfig Config;
-                Config.m_FrameInfos = FrameInfos_Show;
+                Config.m_FrameInfos = showFrameInfo;
 
                 // Create a frame observer for this camera (This will be wrapped in a shared_ptr so we don't delete it)
                 m_pFrameObserver = new FrameObserver( this, m_pCamera, Config.getFrameInfos(), Config.getColorProcessing(), Config.getRGBValue() );
@@ -225,6 +225,14 @@ std::string CameraHandle::GetCameraID()
     m_pCamera->GetID(strID);
 
     return strID; 
+}
+
+std::string CameraHandle::GetCameraModel()
+{
+    std::string strModel;
+    m_pCamera->GetModel(strModel);
+
+    return strModel; 
 }
 
 
