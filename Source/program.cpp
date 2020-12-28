@@ -475,11 +475,13 @@ int main( int argc, char* argv[] )
         err = apiController.StartUp();        
 
         // Comment below to use test in local main thread mode.
-//#define TEST_SNAP_IN_SEPERATE_THREAD 
-#ifndef TEST_SNAP_IN_SEPERATE_THREAD
+#define TEST_SNAP_IN_MAIN_THREAD
+
+#ifdef TEST_SNAP_IN_MAIN_THREAD
         TestMultipleCamerasSnap(apiController, "DEV_1AB22D01BBB8", "DEV_000F314CA646", "DEV_000F314D5B52", "DEV_1AB22C0019F9");
 
 #else
+        // TEST_SNAP_IN_SEPERATE_THREAD 
         AVT::VmbAPI::Examples::CameraHandle camera1;
         AVT::VmbAPI::Examples::CameraHandle camera2;
         AVT::VmbAPI::Examples::CameraHandle camera3;
@@ -488,6 +490,7 @@ int main( int argc, char* argv[] )
         StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002) 
         StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
         StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
+
 #endif
 
         std::cout << "\n\nPress Enter to quit the application ...\n";
