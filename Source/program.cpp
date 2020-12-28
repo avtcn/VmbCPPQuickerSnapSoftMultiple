@@ -391,114 +391,63 @@ int main( int argc, char* argv[] )
 {
     VmbErrorType err = VmbErrorSuccess;
 
-    std::cout<<"///////////////////////////////////////////\n";
-    std::cout<<"/// Vimba API Asynchronous Grab Example ///\n";
-    std::cout<<"///////////////////////////////////////////\n\n";
+    std::cout<<"/////////////////////////////////////////////////////////////////////////\n";
+    std::cout<<"/// Based on Vimba API Asynchronous Grab Example CPP Console          ///\n";
+    std::cout<<"///                                                                   ///\n";
+    std::cout<<"/// Implement quicker software snap function for multiple cameras     ///\n";
+    std::cout<<"///                                                                   ///\n";
+    std::cout<<"///                                                                   ///\n";
+    std::cout<<"///                                            By Joe 2020 DEC 28     ///\n";
+    std::cout<<"/////////////////////////////////////////////////////////////////////////\n\n";
 
     //////////////////////
     //Parse command line//
     //////////////////////
     AVT::VmbAPI::Examples::ProgramConfig Config;
-    err = Config.ParseCommandline( argc, argv);
+    err = Config.ParseCommandline(argc, argv);
     //Write out an error if we could not parse the command line
-    if ( VmbErrorBadParameter == err )
+    if (VmbErrorBadParameter == err)
     {
-        std::cout<< "Invalid parameters!\n\n" ;
-        Config.setPrintHelp( true );
+        std::cout << "Invalid parameters!\n\n";
+        Config.setPrintHelp(true);
     }
 
-    //Print out help and end program
-    if ( Config.getPrintHelp() )
-    {
-        Config.PrintHelp( std::cout );
-    }
-    else
-    {
-        AVT::VmbAPI::Examples::ApiController apiController;
-        
-        // Print out version of Vimba
-        std::cout<<"Vimba C++ API Version "<<apiController.GetVersion()<<"\n";
+    AVT::VmbAPI::Examples::ApiController apiController;
 
-#if 0
-        // Startup Vimba
-        err = apiController.StartUp();        
-        if ( VmbErrorSuccess == err )
-        {
-            if( Config.getCameraID().empty() )
-            {
-                AVT::VmbAPI::CameraPtrVector cameras = apiController.GetCameraList();
-                if( cameras.empty() )
-                {
-                    err = VmbErrorNotFound;
-                }
-                else
-                {
-                    std::string strCameraID;
-                    err = cameras[0]->GetID( strCameraID );
-                    if( VmbErrorSuccess == err )
-                    {
-                        Config.setCameraID( strCameraID );
-                    }
-                }
-            }
-            if ( VmbErrorSuccess == err )
-            {
-                std::cout<<"Opening camera with ID: "<<Config.getCameraID()<<"\n";
+    // Print out version of Vimba
+    std::cout << "Vimba C++ API Version " << apiController.GetVersion() << "\n";
 
-                err = apiController.StartContinuousImageAcquisition( Config );
+    // Delete all local bitmap files
+    system("del_bitmps.cmd");
 
-                if ( VmbErrorSuccess == err )
-                {
-                    std::cout<< "Press <enter> to stop acquisition...\n" ;
-                    getchar();
+    // Startup Vimba
+    err = apiController.StartUp();
 
-                    apiController.StopContinuousImageAcquisition();
-                }
-            }
-
-            apiController.ShutDown();
-        }
-
-        if ( VmbErrorSuccess == err )
-        {
-            std::cout<<"\nAcquisition stopped.\n" ;
-        }
-        else
-        {
-            std::string strError = apiController.ErrorCodeToMessage( err );
-            std::cout<<"\nAn error occurred: " << strError << "\n";
-        }
-#else
-        system("del_bitmps.cmd");
-
-        // Startup Vimba
-        err = apiController.StartUp();        
-
-        // Comment below to use test in local main thread mode.
+    // Comment below to use test in seperate thread for different camera.
 #define TEST_SNAP_IN_MAIN_THREAD
 
 #ifdef TEST_SNAP_IN_MAIN_THREAD
-        TestMultipleCamerasSnap(apiController, "DEV_1AB22D01BBB8", "DEV_000F314CA646", "DEV_000F314D5B52", "DEV_1AB22C0019F9");
+    TestMultipleCamerasSnap(apiController, "DEV_1AB22D01BBB8", "DEV_000F314CA646", "DEV_000F314D5B52", "DEV_1AB22C0019F9");
 
 #else
         // TEST_SNAP_IN_SEPERATE_THREAD 
-        AVT::VmbAPI::Examples::CameraHandle camera1;
-        AVT::VmbAPI::Examples::CameraHandle camera2;
-        AVT::VmbAPI::Examples::CameraHandle camera3;
-        AVT::VmbAPI::Examples::CameraHandle camera4;
-        StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8"); // Model: 1800 U-500m, S/N: A2114
-        StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002) 
-        StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
-        StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
+    AVT::VmbAPI::Examples::CameraHandle camera1;
+    AVT::VmbAPI::Examples::CameraHandle camera2;
+    AVT::VmbAPI::Examples::CameraHandle camera3;
+    AVT::VmbAPI::Examples::CameraHandle camera4;
+    StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8"); // Model: 1800 U-500m, S/N: A2114
+    StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002) 
+    StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
+    StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
 
 #endif
 
-        std::cout << "\n\nPress Enter to quit the application ...\n";
-        _getch();
-        apiController.ShutDown();
-#endif
+    std::cout << "\n\nPress Enter to quit the application ...\n";
+    _getch();
+    
+    // Quit Vimba SDK
+    apiController.ShutDown();
 
-    }
 
     return err;
 }
