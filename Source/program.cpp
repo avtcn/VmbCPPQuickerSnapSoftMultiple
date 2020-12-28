@@ -46,6 +46,8 @@
 using AVT::VmbAPI::Examples::CameraHandle;
 
 
+
+
 UINT CameraProc(LPVOID pParam)
 {
     CameraHandle* pCamera = (CameraHandle*)pParam;
@@ -175,6 +177,216 @@ int StartNewCameraThread(AVT::VmbAPI::Examples::ApiController & sysController, C
     return 1; 
 }
 
+
+
+
+int SnapAndSave(AVT::VmbAPI::Examples::ApiController & sysController, CameraHandle & camera, std::ofstream & fileLog)
+{
+    LARGE_INTEGER m_liPerfFreq = { 0 };
+    // CPU Performance Tick
+    QueryPerformanceFrequency(&m_liPerfFreq);
+
+    std::string strModel = camera.GetCameraModel();
+    strModel = strModel.replace(strModel.find(" "), 1, "_");
+
+    std::string strID = camera.GetCameraID();
+    std::string strSN = camera.GetSerialNumber();
+    std::string strTag = strModel + "_" + strID + "_" + strSN + ": ";
+    std::string strFile = "log_" + strModel + "_" + strID + "_" + strSN + ".csv";
+
+    VmbErrorType err = VmbErrorSuccess;
+    std::vector<VmbUchar_t> imageData;
+    VmbImage sVmbImageData;
+    DWORD dwStart = GetTickCount();
+
+    LARGE_INTEGER m_liPerfStart = { 0 };
+    QueryPerformanceCounter(&m_liPerfStart);
+
+    err = camera.QuickSnap(imageData, sVmbImageData);
+    if (err != VmbErrorSuccess)
+    {
+        std::cout << strTag << "Failed to get QuickSnap()!!!!!!!!!!!!!!! SN: " << strSN << std::endl;
+    }
+    else
+    {
+        DWORD dwEnd = GetTickCount();
+        LARGE_INTEGER liPerfNow = { 0 };
+        QueryPerformanceCounter(&liPerfNow);
+        double time = (((liPerfNow.QuadPart - m_liPerfStart.QuadPart) * 1000) * 1.00000f / m_liPerfFreq.QuadPart);
+
+        char old_fill_char = std::cout.fill('0');
+        std::cout << strTag << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
+            << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
+            << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec
+            << std::endl;
+        std::cout.fill(old_fill_char);
+        std::cout << strTag << "time consumption: " << (time) << " ms" << std::endl;
+
+        // Save current snap photo to disk
+        {
+            AVTBitmap bitmap;
+
+            bitmap.colorCode = ColorCodeRGB24;
+            bitmap.bufferSize = camera.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+            bitmap.width = camera.m_imgWidth;
+            bitmap.height = camera.m_imgHeight;
+
+            // Create the bitmap
+            if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
+            {
+                std::cout << strTag << "Could not create bitmap.\n";
+                err = VmbErrorResources;
+            }
+            else
+            {
+                char pFileName[256];
+                sprintf(pFileName, "%s_%010d_CameraProc.bmp", strSN.c_str(), camera.GetFrameID());
+
+                // Save log with frame id and time consumption in Snap() function
+                fileLog << std::setw(10) << camera.GetFrameID() << ", " << std::setw(10) << std::fixed << std::setprecision(6) << time << std::endl;
+                fileLog.flush();
+
+                // Save the bitmap
+                int ret = 1;
+                // If you do not want to save image into disk, please comment the line below.
+                //ret = AVTWriteBitmapToFile(&bitmap, pFileName);
+                if (0 == ret)
+                {
+                    std::cout << strTag << "Could not write bitmap to file.\n";
+                    err = VmbErrorOther;
+                }
+                else
+                {
+                    std::cout << strTag << "Bitmap successfully written to file \"" << pFileName << "\"\n";
+                    // Release the bitmap's buffer
+                    if (0 == AVTReleaseBitmap(&bitmap))
+                    {
+                        std::cout << strTag << "Could not release the bitmap.\n";
+                        err = VmbErrorInternalFault;
+                    }
+                }
+            }
+
+        }
+    }
+
+
+    return 1;
+}
+
+int TestMultipleCamerasSnap(AVT::VmbAPI::Examples::ApiController& sysController, const char* strCamera1, const char* strCamera2, const char* strCamera3, const char* strCamera4)
+{
+    AVT::VmbAPI::Examples::CameraHandle camera1;
+    AVT::VmbAPI::Examples::CameraHandle camera2;
+    AVT::VmbAPI::Examples::CameraHandle camera3;
+    AVT::VmbAPI::Examples::CameraHandle camera4;
+
+    VmbErrorType err = VmbErrorSuccess;
+    err = sysController.OpenCamera(strCamera1, camera1);
+    if (VmbErrorSuccess != err)
+    {
+        std::cout << "\nFailed to open camera !!!"<< strCamera1 <<"\n";
+        return 0;
+    }
+    else
+    {
+        std::cout << "\nSucessfully opened camera done !" << strCamera1 << "\n";
+    }
+    err = sysController.OpenCamera(strCamera2, camera2);
+    if (VmbErrorSuccess != err)
+    {
+        std::cout << "\nFailed to open camera !!!"<< strCamera2 <<"\n";
+        return 0;
+    }
+    else
+    {
+        std::cout << "\nSucessfully opened camera done !" << strCamera2 << "\n";
+    }
+    err = sysController.OpenCamera(strCamera3, camera3);
+    if (VmbErrorSuccess != err)
+    {
+        std::cout << "\nFailed to open camera !!!"<< strCamera3 <<"\n";
+        return 0;
+    }
+    else
+    {
+        std::cout << "\nSucessfully opened camera done !" << strCamera3 << "\n";
+    }
+    err = sysController.OpenCamera(strCamera4, camera4);
+    if (VmbErrorSuccess != err)
+    {
+        std::cout << "\nFailed to open camera !!!"<< strCamera4 <<"\n";
+        return 0;
+    }
+    else
+    {
+        std::cout << "\nSucessfully opened camera done !" << strCamera4 << "\n";
+    }
+    
+
+    std::string strModel = camera1.GetCameraModel();
+    strModel = strModel.replace(strModel.find(" "), 1, "_"); 
+    std::string strID = camera1.GetCameraID();
+    std::string strSN = camera1.GetSerialNumber();
+    std::string strTag = strModel + "_" + strID + "_" + strSN + ": ";
+    std::string strFile = "log_" + strModel + "_" + strID + "_" + strSN + ".csv"; 
+    std::ofstream fileLog1;
+    fileLog1.open(strFile);
+
+    strModel = camera2.GetCameraModel();
+    strModel = strModel.replace(strModel.find(" "), 1, "_");
+    strID = camera2.GetCameraID();
+    strSN = camera2.GetSerialNumber();
+    strTag = strModel + "_" + strID + "_" + strSN + ": ";
+    strFile = "log_" + strModel + "_" + strID + "_" + strSN + ".csv"; 
+    std::ofstream fileLog2;
+    fileLog2.open(strFile);
+
+    strModel = camera3.GetCameraModel();
+    strModel = strModel.replace(strModel.find(" "), 1, "_");
+    strID = camera3.GetCameraID();
+    strSN = camera3.GetSerialNumber();
+    strTag = strModel + "_" + strID + "_" + strSN + ": ";
+    strFile = "log_" + strModel + "_" + strID + "_" + strSN + ".csv"; 
+    std::ofstream fileLog3;
+    fileLog3.open(strFile);
+
+    strModel = camera4.GetCameraModel();
+    strModel = strModel.replace(strModel.find(" "), 1, "_");
+    strID = camera4.GetCameraID();
+    strSN = camera4.GetSerialNumber();
+    strTag = strModel + "_" + strID + "_" + strSN + ": ";
+    strFile = "log_" + strModel + "_" + strID + "_" + strSN + ".csv"; 
+    std::ofstream fileLog4;
+    fileLog4.open(strFile);
+
+    std::cout << "Press <q> to exit ...\n";
+
+    while (1)
+    {
+        if (_kbhit()) {
+            char pressed = _getch();
+            if (pressed == 'q' || pressed == 'Q')
+                break;
+        } 
+
+        Sleep(1000);
+        SnapAndSave(sysController, camera1, fileLog1);
+        Sleep(100);
+        SnapAndSave(sysController, camera2, fileLog2);
+        Sleep(100);
+        SnapAndSave(sysController, camera3, fileLog3);
+        Sleep(100);
+        SnapAndSave(sysController, camera4, fileLog4);
+
+    }
+
+    return 1;
+}
+
+
+
+
 int main( int argc, char* argv[] )
 {
     VmbErrorType err = VmbErrorSuccess;
@@ -262,110 +474,20 @@ int main( int argc, char* argv[] )
         // Startup Vimba
         err = apiController.StartUp();        
 
+        // Comment below to use test in local main thread mode.
+//#define TEST_SNAP_IN_SEPERATE_THREAD 
+#ifndef TEST_SNAP_IN_SEPERATE_THREAD
+        TestMultipleCamerasSnap(apiController, "DEV_1AB22D01BBB8", "DEV_000F314CA646", "DEV_000F314D5B52", "DEV_1AB22C0019F9");
 
-        AVT::VmbAPI::Examples::CameraHandle camera2;
-        StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8"); // Model: 1800 U-500m, S/N: A2114
-
-#if 1
-        // TODO: add two more cameras.
-        AVT::VmbAPI::Examples::CameraHandle camera3;
-        StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002)
-
-        AVT::VmbAPI::Examples::CameraHandle camera4;
-        StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
-#endif
-
-
-        AVT::VmbAPI::Examples::CameraHandle camera1;
-#if 1
-        StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
 #else
-        err = apiController.OpenCamera("DEV_1AB22C0019F9", camera1);
-        if ( VmbErrorSuccess != err )
-        {
-            std::cout<<"\nFailed to open camera !!!\n" ;
-        }
-        else
-        {
-            std::cout << "\nSucessfully opened camera done !" << "\n";
-        }
-
-
-        std::cout << "Press <q> to exit ...\n";
-
-        while(1)
-        {
-            char pressed = _getch();
-
-            if (pressed == ' ') { 
-                std::string strID = apiController.GetCameraID(camera1);
-                std::string strSN = apiController.GetSerialNumber(camera1);
-                std::cout << strID << ", " << strSN << std::endl;
-
-                std::vector<VmbUchar_t> imageData;
-                err = apiController.QuickSnap(camera1, imageData);
-                if (err != VmbErrorSuccess)
-                {
-                    std::cout << "Failed to get QuickSnap()!!!!!!!!!!!!!!!" << std::endl; 
-                } 
-                else
-                {
-
-                    char old_fill_char = std::cout.fill('0');
-                    std::cout << std::hex << "R = 0x" << std::setw(2) << (int)imageData[0] << " "
-                        << "G = 0x" << std::setw(2) << (int)imageData[1] << " "
-                        << "B = 0x" << std::setw(2) << (int)imageData[2] << std::dec << "\n";
-                    std::cout.fill(old_fill_char);
-
-                    // Save current snap photo to disk
-                    {
-                        AVTBitmap bitmap;
-
-                        bitmap.colorCode = ColorCodeRGB24;
-                        bitmap.bufferSize = camera1.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
-                        bitmap.width = camera1.m_imgWidth;
-                        bitmap.height = camera1.m_imgHeight;
-
-                        // Create the bitmap
-                        if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
-                        {
-                            std::cout << "Could not create bitmap.\n";
-                            err = VmbErrorResources;
-                        }
-                        else
-                        {
-                            char pFileName[256];
-                            sprintf(pFileName, "%s_%020d_main_thread.bmp", strSN.c_str(), camera1.GetFrameID());
-
-                            // Save the bitmap
-                            if (0 == AVTWriteBitmapToFile(&bitmap, pFileName))
-                            {
-                                std::cout << "Could not write bitmap to file.\n";
-                                err = VmbErrorOther;
-                            }
-                            else
-                            {
-                                std::cout << "Bitmap successfully written to file \"" << pFileName << "\"\n";
-                                // Release the bitmap's buffer
-                                if (0 == AVTReleaseBitmap(&bitmap))
-                                {
-                                    std::cout << "Could not release the bitmap.\n";
-                                    err = VmbErrorInternalFault;
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-            else {
-            }
-
-            if (pressed == 'q' || pressed == 'Q')
-                break;
-        }
-        std::cout << std::endl; 
-        apiController.CloseCamera(camera1);
+        AVT::VmbAPI::Examples::CameraHandle camera1;
+        AVT::VmbAPI::Examples::CameraHandle camera2;
+        AVT::VmbAPI::Examples::CameraHandle camera3;
+        AVT::VmbAPI::Examples::CameraHandle camera4;
+        StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8"); // Model: 1800 U-500m, S/N: A2114
+        StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002) 
+        StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
+        StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
 #endif
 
         std::cout << "\n\nPress Enter to quit the application ...\n";
