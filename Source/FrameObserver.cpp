@@ -328,6 +328,8 @@ void FrameObserver::FrameReceived( const FramePtr pFrame )
         if( VmbErrorSuccess == Result && VmbFrameStatusComplete == status)
         {
             std::vector<VmbUchar_t> TransformedData;
+
+            // TODO: for color camera
             if ( m_bRGB )
             {
                 switch( m_eColorProcessing )
@@ -372,13 +374,24 @@ void FrameObserver::FrameReceived( const FramePtr pFrame )
                 // Mono Camera
                 pFrame->GetImageSize(m_pParent->m_imageSize);
                 pFrame->GetTimestamp(m_pParent->m_timestamp);
-                Result = TransformImage(pFrame, m_pParent->m_DestinationImageData, "RGB24");
-
-
-
-                pFrame->GetImageSize(m_pParent->m_imageSize);
                 pFrame->GetFrameID(m_pParent->m_frameID);
+                m_pParent->m_bMono = false;
 
+                // Convert all to RGB24
+                //Result = TransformImage(pFrame, m_pParent->m_DestinationImageData, "RGB24");
+
+
+                // Copy the mono8 raw data to user space
+                VmbUint32_t size;
+                pFrame->GetImageSize(size);
+
+                VmbUchar_t* DataBegin = NULL;
+                Result = SP_ACCESS(pFrame)->GetImage(DataBegin);
+
+                m_pParent->m_DestinationImageData.resize(size);
+                memcpy(&*(m_pParent->m_DestinationImageData.begin()), DataBegin, size);
+
+                m_pParent->m_lock.Unlock();
 
                 if (FrameInfos_Off != m_eFrameInfos) {
                     std::cout << "image size = " << m_pParent->m_imageSize << ", timestamp = " << m_pParent->m_timestamp
@@ -388,7 +401,6 @@ void FrameObserver::FrameReceived( const FramePtr pFrame )
                         << std::endl;
                 }
 
-                m_pParent->m_lock.Unlock();
 
             }
 

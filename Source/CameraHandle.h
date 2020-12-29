@@ -81,6 +81,7 @@ public:
     VmbUint32_t  m_imageSize; 
     VmbUint64_t  m_frameID; 
     VmbUint64_t  m_timestamp; 
+    bool         m_bMono;
 
     VmbInt64_t m_imgWidth; 
     VmbInt64_t m_imgHeight; 

@@ -109,8 +109,8 @@ UINT CameraProc(LPVOID pParam)
 
                 bitmap.colorCode = ColorCodeRGB24;
                 bitmap.bufferSize = pCamera->GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
-                bitmap.width = pCamera->m_imgWidth;
-                bitmap.height = pCamera->m_imgHeight;
+                bitmap.width = (unsigned long)pCamera->m_imgWidth;
+                bitmap.height = (unsigned long)pCamera->m_imgHeight;
 
                 // Create the bitmap
                 if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
@@ -226,10 +226,12 @@ int SnapAndSave(AVT::VmbAPI::Examples::ApiController & sysController, CameraHand
         {
             AVTBitmap bitmap;
 
-            bitmap.colorCode = ColorCodeRGB24;
-            bitmap.bufferSize = camera.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
-            bitmap.width = camera.m_imgWidth;
-            bitmap.height = camera.m_imgHeight;
+            //bitmap.colorCode = ColorCodeRGB24;
+            //bitmap.bufferSize = camera.GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+            bitmap.colorCode = ColorCodeMono8;
+            bitmap.bufferSize = camera.GetImageSize() * 1; // TODO: Mono8 also saved in RGB24 format
+            bitmap.width = (unsigned long)camera.m_imgWidth;
+            bitmap.height = (unsigned long)camera.m_imgHeight;
 
             // Create the bitmap
             if (0 == AVTCreateBitmap(&bitmap, &*imageData.begin()))
@@ -240,7 +242,7 @@ int SnapAndSave(AVT::VmbAPI::Examples::ApiController & sysController, CameraHand
             else
             {
                 char pFileName[256];
-                sprintf(pFileName, "%s_%010d_CameraProc.bmp", strSN.c_str(), camera.GetFrameID());
+                sprintf(pFileName, "%s_%010ld_CameraProc.bmp", strSN.c_str(),(long long) camera.GetFrameID());
 
                 // Save log with frame id and time consumption in Snap() function
                 fileLog << std::setw(10) << camera.GetFrameID() << ", " << std::setw(10) << std::fixed << std::setprecision(6) << time << std::endl;
