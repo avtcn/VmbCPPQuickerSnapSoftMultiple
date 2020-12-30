@@ -75,6 +75,10 @@ VmbErrorType CameraHandle::OpenCameraHandle(const char* pID, FrameInfos showFram
 {
     // Open the desired camera by its ID
     VmbErrorType res = VimbaSystem::GetInstance().OpenCameraByID( pID, VmbAccessModeFull, m_pCamera );
+
+    // TEST: force to 1000x800 resolution
+    PrepareCamera();
+
     if ( VmbErrorSuccess == res )
     {
         // Set the GeV packet size to the highest possible value
@@ -204,17 +208,41 @@ VmbErrorType SetIntFeatureValueModulo2b( const CameraPtr &pCamera, const char* c
 /**prepare camera so that the delivered image will not fail in image transform*/
 VmbErrorType CameraHandle::PrepareCamera()
 {
-    VmbErrorType result;
-    result = SetIntFeatureValueModulo2b( m_pCamera, "Width" );
-    if( VmbErrorSuccess != result )
-    {
-        return result;
+    VmbErrorType    result;
+    FeaturePtr      feature;
+
+    result = SP_ACCESS( m_pCamera )->GetFeatureByName( "OffsetX", feature );
+    result = SP_ACCESS( feature )->SetValue ( 0);
+
+    result = SP_ACCESS( m_pCamera )->GetFeatureByName( "OffsetY", feature );
+    result = SP_ACCESS( feature )->SetValue ( 0);
+
+    result = SP_ACCESS( m_pCamera )->GetFeatureByName( "Width", feature );
+    result = SP_ACCESS( feature )->SetValue ( 1000);
+
+    result = SP_ACCESS( m_pCamera )->GetFeatureByName( "Height", feature );
+    result = SP_ACCESS( feature )->SetValue ( 800);
+
+    // Set to fixed rate mode in 10 fps
+    result = SP_ACCESS( m_pCamera )->GetFeatureByName( "StreamType", feature );
+    std::string strStreamType;
+    result = SP_ACCESS(feature)->GetValue(strStreamType);
+    if (!strStreamType.compare("USB3")) {
+        // 's' and 't' are equal.
+        result = SP_ACCESS(m_pCamera)->GetFeatureByName("AcquisitionFrameRateEnable", feature);
+        result = SP_ACCESS(feature)->SetValue(true);
+        result = SP_ACCESS(m_pCamera)->GetFeatureByName("AcquisitionFrameRate", feature);
+        result = SP_ACCESS(feature)->SetValue(10.0f);
     }
-    result = SetIntFeatureValueModulo2b( m_pCamera, "Height" );
-    if( VmbErrorSuccess != result )
-    {
-        return result;
+    if (!strStreamType.compare("GEV")) {
+        // 's' and 't' are equal.
+        result = SP_ACCESS(m_pCamera)->GetFeatureByName("TriggerSource", feature);
+        result = SP_ACCESS(feature)->SetValue("FixedRate");
+        result = SP_ACCESS(m_pCamera)->GetFeatureByName("AcquisitionFrameRateAbs", feature);
+        result = SP_ACCESS(feature)->SetValue(10.0f);
     }
+    
+
     return result;
 }
 

@@ -64,13 +64,14 @@ public:
     VmbUint32_t  GetImageSize();
     VmbUint64_t  GetFrameID();
 
+    VmbErrorType PrepareCamera(); 
+
 private:
 
     char*               m_pStrCameraID;
     CameraPtr           m_pCamera;                  // The currently streaming camera
     FrameObserver*      m_pFrameObserver;           // Every camera has its own frame observer
 
-    VmbErrorType PrepareCamera(); 
 
 public:
     // Save the latest Frame Info 
