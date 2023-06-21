@@ -56,23 +56,23 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
-    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\Examples.props" />
+    <Import Project="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Build\VS2010\ImageTransform.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -113,7 +113,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_x64_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -151,7 +151,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_x64NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\Source;C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -172,9 +172,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Bitmap.h" />
-    <ClInclude Include="C:\Program Files\Allied Vision\Vimba_4.0\VimbaImageTransform\Include\VmbTransform.h" />
-    <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Common\ErrorCodeToMessage.h" />
-    <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_4.0\VimbaCPP_Examples\Common\StreamSystemInfo.h" />
+    <ClInclude Include="C:\Program Files\Allied Vision\Vimba_6.0\VimbaImageTransform\Include\VmbTransform.h" />
+    <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Common\ErrorCodeToMessage.h" />
+    <ClInclude Include="C:\Users\Public\Documents\Allied Vision\Vimba_6.0\VimbaCPP_Examples\Common\StreamSystemInfo.h" />
     <ClInclude Include="..\..\Source\ApiController.h" />
     <ClInclude Include="..\..\Source\BaseException.h" />
     <ClInclude Include="..\..\Source\FrameObserver.h" />
