@@ -107,8 +107,10 @@ UINT CameraProc(LPVOID pParam)
             {
                 AVTBitmap bitmap;
 
-                bitmap.colorCode = ColorCodeRGB24;
-                bitmap.bufferSize = pCamera->GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+                //bitmap.colorCode = ColorCodeRGB24;
+                //bitmap.bufferSize = pCamera->GetImageSize() * 3; // TODO: Mono8 also saved in RGB24 format
+                bitmap.colorCode = ColorCodeMono8;
+                bitmap.bufferSize = pCamera->GetImageSize() * 1; // Mono8 
                 bitmap.width = (unsigned long)pCamera->m_imgWidth;
                 bitmap.height = (unsigned long)pCamera->m_imgHeight;
 
@@ -130,7 +132,7 @@ UINT CameraProc(LPVOID pParam)
                     // Save the bitmap
                     int ret = 1;
                     // If you do not want to save image into disk, please comment the line below.
-                    //ret = AVTWriteBitmapToFile(&bitmap, pFileName);
+                    ret = AVTWriteBitmapToFile(&bitmap, pFileName);
                     if (0 == ret)
                     {
                         std::cout << strTag << "Could not write bitmap to file.\n";
@@ -400,6 +402,7 @@ int main( int argc, char* argv[] )
     std::cout<<"///                                                                   ///\n";
     std::cout<<"///                                                                   ///\n";
     std::cout<<"///                                            By Joe 2020 DEC 28     ///\n";
+    std::cout<<"///                                            By Joe 2023 JUN 21     ///\n";
     std::cout<<"/////////////////////////////////////////////////////////////////////////\n\n";
 
     //////////////////////
@@ -426,7 +429,7 @@ int main( int argc, char* argv[] )
     err = apiController.StartUp();
 
     // Comment below to use test in seperate thread for different camera.
-#define TEST_SNAP_IN_MAIN_THREAD
+//#define TEST_SNAP_IN_MAIN_THREAD
 
 #ifdef TEST_SNAP_IN_MAIN_THREAD
     TestMultipleCamerasSnap(apiController, "DEV_1AB22D01BBB8", "DEV_000F314CA646", "DEV_000F314D5B52", "DEV_1AB22C0019F9");
@@ -435,12 +438,8 @@ int main( int argc, char* argv[] )
         // TEST_SNAP_IN_SEPERATE_THREAD 
     AVT::VmbAPI::Examples::CameraHandle camera1;
     AVT::VmbAPI::Examples::CameraHandle camera2;
-    AVT::VmbAPI::Examples::CameraHandle camera3;
-    AVT::VmbAPI::Examples::CameraHandle camera4;
-    StartNewCameraThread(apiController, camera2, "DEV_1AB22D01BBB8"); // Model: 1800 U-500m, S/N: A2114
-    StartNewCameraThread(apiController, camera3, "DEV_000F314CA646"); // Manta_G-125B (E0020002) 
-    StartNewCameraThread(apiController, camera4, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
-    StartNewCameraThread(apiController, camera1, "DEV_1AB22C0019F9"); // Model: 1800 U-319m, S/N: 0054P
+    StartNewCameraThread(apiController, camera1, "DEV_000F314D5B52"); // Manta G-895B (E0622706)
+    StartNewCameraThread(apiController, camera2, "DEV_000A470003BF"); // Alvium G1-507m (DEV_000A470003BF) 
 
 #endif
 
